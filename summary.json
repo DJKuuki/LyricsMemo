@@ -1,0 +1,14 @@
+{
+  "input": "D:\\LyricJLPT\\最常听的.txt",
+  "netease_rank_url": "",
+  "rank_type": 0,
+  "track_count": 100,
+  "lyrics_found_count": 64,
+  "japanese_track_count": 49,
+  "vocab_count": 1534,
+  "grammar_count": 31,
+  "anki_card_count": 331,
+  "include_examples": true,
+  "dictionary": "D:\\LyricJLPT\\resources\\japanese_chinese_thesaurus_final.json",
+  "dictionary_entry_count": 12716
+}

@@ -1,0 +1,1575 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LyricJLPT · 歌词日语学习</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --bg-soft: #161a22;
+    --bg-card: #1c2230;
+    --border: #2a3142;
+    --text: #e6e8ee;
+    --text-dim: #9aa3b2;
+    --accent: #ff7aa2;
+    --accent-2: #7ab8ff;
+    --good: #5ddc9b;
+    --bad: #ff7a7a;
+    --warn: #ffd166;
+    --shadow: 0 6px 24px rgba(0,0,0,.35);
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f7fb;
+      --bg-soft: #eef0f6;
+      --bg-card: #ffffff;
+      --border: #d9dde6;
+      --text: #1b1f2a;
+      --text-dim: #5a6273;
+      --shadow: 0 6px 24px rgba(20, 30, 60, .08);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans",
+                 "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-2); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.app {
+    position: sticky; top: 0; z-index: 30;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 20px;
+  }
+  .brand {
+    font-weight: 800; font-size: 18px; letter-spacing: .3px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .brand .dot { width: 10px; height: 10px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .tabs {
+    display: flex; gap: 4px; margin-left: 8px; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 8px 14px; border-radius: 999px;
+    color: var(--text-dim); cursor: pointer;
+    font-size: 14px; user-select: none;
+    border: 1px solid transparent;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-soft); }
+  .tab.active {
+    color: var(--text);
+    background: var(--bg-card);
+    border-color: var(--border);
+  }
+  .spacer { flex: 1; }
+  .stats-pill {
+    font-size: 12px; color: var(--text-dim);
+    background: var(--bg-soft); padding: 6px 10px; border-radius: 999px;
+    border: 1px solid var(--border);
+  }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  /* ===== Dashboard ===== */
+  .grid {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow);
+  }
+  .card h3 { margin: 0 0 4px; font-size: 14px; color: var(--text-dim);
+    font-weight: 500; letter-spacing: .3px; }
+  .card .big { font-size: 28px; font-weight: 800; }
+  .card .sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+  .progress {
+    height: 8px; background: var(--bg-soft);
+    border-radius: 999px; overflow: hidden; margin-top: 10px;
+  }
+  .progress > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--accent-2), var(--good));
+  }
+
+  h2.section { margin: 28px 0 14px; font-size: 16px; color: var(--text-dim);
+    font-weight: 600; letter-spacing: .3px; text-transform: uppercase; }
+
+  /* ===== Study card ===== */
+  .study {
+    display: flex; flex-direction: column; align-items: center; gap: 18px;
+  }
+  .flash {
+    width: 100%; max-width: 640px;
+    min-height: 360px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 36px 28px;
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: center;
+    cursor: pointer; user-select: none;
+    transition: transform .15s ease;
+    position: relative;
+  }
+  .flash:active { transform: scale(.995); }
+  .flash .hint {
+    position: absolute; top: 12px; right: 16px;
+    font-size: 11px; color: var(--text-dim);
+  }
+  .flash .badge {
+    position: absolute; top: 12px; left: 16px;
+    font-size: 11px; color: var(--text-dim);
+    background: var(--bg-soft); padding: 4px 10px;
+    border-radius: 999px; border: 1px solid var(--border);
+  }
+  .flash .word {
+    font-size: 56px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    line-height: 1.1; text-align: center;
+    word-break: break-word;
+  }
+  .flash .reading {
+    margin-top: 14px; color: var(--text-dim);
+    font-size: 22px; letter-spacing: 2px;
+  }
+  .flash .pos {
+    margin-top: 6px; font-size: 12px; color: var(--text-dim);
+  }
+  .flash .meaning {
+    margin-top: 18px; font-size: 18px; text-align: center;
+    line-height: 1.6;
+  }
+  .flash .example {
+    margin-top: 18px; padding: 12px 14px;
+    background: var(--bg-soft); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 15px; line-height: 1.6;
+    color: var(--text); width: 100%;
+  }
+  .flash .example .ref {
+    display: block; margin-top: 6px;
+    font-size: 12px; color: var(--text-dim);
+  }
+  .example-list {
+    margin-top: 18px; width: 100%;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .example-item {
+    padding: 10px 12px;
+    background: var(--bg-soft); border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 14px; line-height: 1.55;
+  }
+  .example-item .ja { color: var(--text); }
+  .example-item .cn { color: var(--text-dim); margin-top: 4px; }
+  .example-item .ref {
+    display: block; margin-top: 4px;
+    font-size: 11px; color: var(--text-dim); opacity: .78;
+  }
+  .flash.hidden-content .meaning,
+  .flash.hidden-content .reading,
+  .flash.hidden-content .example-list,
+  .flash.hidden-content .example,
+  .flash.hidden-content .pos { display: none; }
+
+  .controls {
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+  }
+  .btn {
+    padding: 10px 18px; border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text);
+    cursor: pointer; font-size: 14px; font-weight: 600;
+    transition: transform .08s ease, background .15s ease;
+  }
+  .btn:hover { background: var(--bg-soft); }
+  .btn:active { transform: scale(.97); }
+  .btn.good { border-color: rgba(93,220,155,.4); color: var(--good); }
+  .btn.bad  { border-color: rgba(255,122,122,.4); color: var(--bad); }
+  .btn.again{ border-color: rgba(255,209,102,.4); color: var(--warn); }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff; border-color: transparent;
+  }
+
+  .meta-row {
+    display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+    color: var(--text-dim); font-size: 13px;
+  }
+
+  /* ===== Browse table ===== */
+  .toolbar {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 14px; align-items: center;
+  }
+  .input, select {
+    background: var(--bg-card); color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 9px 12px;
+    font-size: 14px; outline: none;
+  }
+  .input:focus, select:focus { border-color: var(--accent-2); }
+  .input { min-width: 220px; }
+  table {
+    width: 100%; border-collapse: collapse;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  th, td {
+    text-align: left; padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px; vertical-align: top;
+  }
+  th {
+    background: var(--bg-soft);
+    color: var(--text-dim);
+    font-weight: 600; font-size: 12px;
+    text-transform: uppercase; letter-spacing: .4px;
+    position: sticky; top: 0;
+  }
+  tbody tr:hover { background: var(--bg-soft); }
+  td.kw { font-weight: 700; font-size: 16px; }
+  td.reading { color: var(--text-dim); font-family: ui-monospace, monospace; }
+  td.freq { text-align: right; color: var(--accent); font-weight: 700; }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    background: var(--bg-soft); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 999px; color: var(--text-dim);
+    margin-right: 4px;
+  }
+  .tag.known { color: var(--good); border-color: rgba(93,220,155,.4); }
+  .tag.learning { color: var(--warn); border-color: rgba(255,209,102,.4); }
+  .tag.jlpt { font-weight: 700; }
+  .tag.jlpt-N5 { color: #5ddc9b; border-color: rgba(93,220,155,.5); }
+  .tag.jlpt-N4 { color: #7ab8ff; border-color: rgba(122,184,255,.5); }
+  .tag.jlpt-N3 { color: #ffd166; border-color: rgba(255,209,102,.5); }
+  .tag.jlpt-N2 { color: #ff7aa2; border-color: rgba(255,122,162,.5); }
+  .tag.jlpt-N1 { color: #c89bff; border-color: rgba(200,155,255,.5); }
+  .tag.jlpt-N2.hot { background: rgba(255,122,162,.12); }
+  .tag.jlpt-none { color: var(--text-dim); opacity: .6; }
+  .row-actions {
+    display: flex; gap: 6px;
+  }
+  .row-actions button {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text-dim); border-radius: 8px;
+    padding: 4px 10px; cursor: pointer; font-size: 12px;
+  }
+  .row-actions button:hover { color: var(--text); }
+  .row-actions button.is-known { color: var(--good); border-color: rgba(93,220,155,.4); }
+  .row-actions button.is-learning { color: var(--warn); border-color: rgba(255,209,102,.4); }
+
+  .empty {
+    padding: 60px 20px; text-align: center; color: var(--text-dim);
+  }
+  .loader {
+    width: 22px; height: 22px;
+    border: 3px solid var(--border); border-top-color: var(--accent-2);
+    border-radius: 50%; animation: spin 1s linear infinite;
+    margin: 30px auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* page nav */
+  .pager {
+    display: flex; gap: 8px; justify-content: center; margin-top: 16px;
+    color: var(--text-dim); font-size: 13px; align-items: center;
+  }
+
+  .small { font-size: 12px; color: var(--text-dim); }
+  .sync-status {
+    margin-top: 10px; font-size: 12px; line-height: 1.6;
+    color: var(--text-dim);
+  }
+  .sync-status strong { color: var(--text); }
+  .sync-status.ok strong { color: var(--good); }
+  .sync-status.saving strong { color: var(--warn); }
+  .sync-status.err strong { color: var(--bad); }
+
+  .kbd {
+    font-family: ui-monospace, monospace; font-size: 11px;
+    background: var(--bg-soft); border: 1px solid var(--border);
+    padding: 1px 6px; border-radius: 6px; color: var(--text-dim);
+  }
+
+  details.help {
+    margin-top: 18px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 10px 14px;
+  }
+  details.help[open] { padding-bottom: 14px; }
+  details.help summary { cursor: pointer; color: var(--text-dim); font-size: 13px; }
+  details.help ul { margin: 8px 0 0 18px; line-height: 1.8; font-size: 13px; }
+
+  @media (max-width: 600px) {
+    .flash .word { font-size: 40px; }
+    .flash { padding: 24px 16px; min-height: 280px; }
+    .nav { padding: 10px 14px; }
+    main { padding: 16px 14px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="nav">
+    <div class="brand"><span class="dot"></span> LyricJLPT</div>
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-view="dash">总览</div>
+      <div class="tab" data-view="vocab">背单词</div>
+      <div class="tab" data-view="grammar">背语法</div>
+      <div class="tab" data-view="browse">浏览 · 单词</div>
+      <div class="tab" data-view="gbrowse">浏览 · 语法</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="stats-pill" id="globalStats">加载中…</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- =============== Dashboard =============== -->
+  <section class="view active" id="view-dash">
+    <div class="grid">
+      <div class="card">
+        <h3>词汇总量</h3>
+        <div class="big" id="dashVocabTotal">—</div>
+        <div class="sub">来自歌词频率表</div>
+      </div>
+      <div class="card">
+        <h3>语法总量</h3>
+        <div class="big" id="dashGrammarTotal">—</div>
+        <div class="sub">JLPT 常用模式</div>
+      </div>
+      <div class="card">
+        <h3>已掌握 · 单词</h3>
+        <div class="big" id="dashVocabKnown">0</div>
+        <div class="progress"><span id="dashVocabBar" style="width:0%"></span></div>
+        <div class="sub" id="dashVocabSub">点击「背单词」开始</div>
+      </div>
+      <div class="card">
+        <h3>已掌握 · 语法</h3>
+        <div class="big" id="dashGrammarKnown">0</div>
+        <div class="progress"><span id="dashGrammarBar" style="width:0%"></span></div>
+        <div class="sub" id="dashGrammarSub">点击「背语法」开始</div>
+      </div>
+      <div class="card" style="border-color: rgba(255,122,162,.4)">
+        <h3><span class="tag jlpt jlpt-N2">N2</span> 高频词进度</h3>
+        <div class="big" id="dashN2Known">0 / 0</div>
+        <div class="progress"><span id="dashN2Bar" style="width:0%"></span></div>
+        <div class="sub" id="dashN2Sub">在歌词中出现的 N2 高频词</div>
+      </div>
+      <div class="card">
+        <h3>JLPT 等级分布</h3>
+        <div id="dashJlptDist" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+        <div class="sub" style="margin-top:8px">歌词词汇按 JLPT 等级</div>
+      </div>
+    </div>
+
+    <h2 class="section">快速开始</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>每日 20 词复习</h3>
+        <div class="sub" style="margin:6px 0 12px">优先复习未掌握/学习中的高频词。</div>
+        <button class="btn primary" onclick="startStudy('vocab', {dailyMode:true})">开始复习</button>
+      </div>
+      <div class="card" style="border-color: rgba(255,122,162,.4)">
+        <h3><span class="tag jlpt jlpt-N2">N2</span> 高频词卡组</h3>
+        <div class="sub" style="margin:6px 0 12px">仅练习 N2 高频词（与歌词的交集）。</div>
+        <button class="btn primary" onclick="startN2Study()">开始 N2 备考</button>
+      </div>
+      <div class="card">
+        <h3>语法卡组</h3>
+        <div class="sub" style="margin:6px 0 12px">按频率出题，含歌词例句。</div>
+        <button class="btn primary" onclick="startStudy('grammar')">开始语法</button>
+      </div>
+      <div class="card">
+        <h3>进度保存</h3>
+        <div class="sub" style="margin:6px 0 12px">
+          本地启动时写入 <code>lyricjlpt-progress.json</code>；上线后可配置 AWS 云端同步。
+        </div>
+        <div class="sync-status" id="syncStatus"><strong>检测中…</strong></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="manualSyncNow()">立即保存</button>
+          <button class="btn" onclick="configureCloudSync()">云端设置</button>
+          <button class="btn" onclick="clearCloudSync()">清除云配置</button>
+          <button class="btn" onclick="exportProgress()">导出备份</button>
+          <button class="btn" onclick="document.getElementById('importFile').click()">导入</button>
+          <input id="importFile" type="file" accept="application/json" style="display:none" />
+        </div>
+      </div>
+    </div>
+
+    <details class="help" open>
+      <summary>使用提示</summary>
+      <ul>
+        <li>背单词/语法卡片中：<span class="kbd">空格</span> 翻面，<span class="kbd">1</span> 不会，<span class="kbd">2</span> 模糊，<span class="kbd">3</span> 会，<span class="kbd">←/→</span> 上一张/下一张。</li>
+        <li>「已掌握」的卡片在下次复习中权重降低；「学习中」会优先出现。</li>
+        <li>本地推荐运行 <code>npm start</code> 或 <code>python serve_with_progress.py</code>；进度会保存到同目录的 <code>lyricjlpt-progress.json</code>。</li>
+        <li>AWS 上线后点击「云端设置」，填入 Lambda Function URL 和 sync token；未配置或网络失败时会回退到浏览器 localStorage。</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- =============== Vocab Study =============== -->
+  <section class="view" id="view-vocab">
+    <div class="toolbar">
+      <select id="vocabFilter" onchange="restartStudy('vocab')">
+        <option value="all">全部单词</option>
+        <option value="learning">仅学习中</option>
+        <option value="unknown">仅未学</option>
+        <option value="top100">歌词高频 Top 100</option>
+        <option value="top300">歌词高频 Top 300</option>
+      </select>
+      <select id="vocabJlpt" onchange="restartStudy('vocab')">
+        <option value="all">全部 JLPT</option>
+        <option value="N2HF">★ N2 高频</option>
+        <option value="N5">N5</option>
+        <option value="N4">N4</option>
+        <option value="N3">N3</option>
+        <option value="N2">N2</option>
+        <option value="none">未分级</option>
+      </select>
+      <select id="vocabPos" onchange="restartStudy('vocab')">
+        <option value="all">全部词性</option>
+        <option value="名詞">名词</option>
+        <option value="動詞">动词</option>
+        <option value="形容詞">形容词</option>
+        <option value="形容動詞">形容动词</option>
+        <option value="副詞">副词</option>
+      </select>
+      <select id="vocabOrder" onchange="restartStudy('vocab')">
+        <option value="freq">按频率</option>
+        <option value="random">随机</option>
+      </select>
+      <div class="spacer"></div>
+      <div class="small" id="vocabProgress">0 / 0</div>
+    </div>
+
+    <div class="study" id="vocabStudy"></div>
+  </section>
+
+  <!-- =============== Grammar Study =============== -->
+  <section class="view" id="view-grammar">
+    <div class="toolbar">
+      <select id="grammarFilter" onchange="restartStudy('grammar')">
+        <option value="all">全部语法</option>
+        <option value="learning">仅学习中</option>
+        <option value="unknown">仅未学</option>
+      </select>
+      <select id="grammarJlpt" onchange="restartStudy('grammar')">
+        <option value="all">全部 JLPT</option>
+        <option value="N5">N5</option>
+        <option value="N4">N4</option>
+        <option value="N3">N3</option>
+        <option value="N2">N2</option>
+      </select>
+      <select id="grammarOrder" onchange="restartStudy('grammar')">
+        <option value="freq">按频率</option>
+        <option value="random">随机</option>
+      </select>
+      <div class="spacer"></div>
+      <div class="small" id="grammarProgress">0 / 0</div>
+    </div>
+
+    <div class="study" id="grammarStudy"></div>
+  </section>
+
+  <!-- =============== Vocab Browse =============== -->
+  <section class="view" id="view-browse">
+    <div class="toolbar">
+      <input class="input" id="vocabSearch" placeholder="搜索：汉字 / 假名 / 中文释义…" oninput="renderVocabTable()" />
+      <select id="vocabStatusFilter" onchange="renderVocabTable()">
+        <option value="all">全部状态</option>
+        <option value="known">已掌握</option>
+        <option value="learning">学习中</option>
+        <option value="unknown">未学</option>
+      </select>
+      <select id="vocabPosFilter" onchange="renderVocabTable()">
+        <option value="all">全部词性</option>
+        <option value="名詞">名词</option>
+        <option value="動詞">动词</option>
+        <option value="形容詞">形容词</option>
+        <option value="形容動詞">形容动词</option>
+        <option value="副詞">副词</option>
+      </select>
+      <select id="vocabJlptFilter" onchange="renderVocabTable()">
+        <option value="all">全部 JLPT</option>
+        <option value="N2HF">★ N2 高频</option>
+        <option value="N5">N5</option>
+        <option value="N4">N4</option>
+        <option value="N3">N3</option>
+        <option value="N2">N2</option>
+        <option value="none">未分级</option>
+      </select>
+      <div class="spacer"></div>
+      <div class="small" id="vocabCount"></div>
+    </div>
+    <div id="vocabTableHost"></div>
+    <div class="pager" id="vocabPager"></div>
+  </section>
+
+  <!-- =============== Grammar Browse =============== -->
+  <section class="view" id="view-gbrowse">
+    <div class="toolbar">
+      <input class="input" id="grammarSearch" placeholder="搜索：语法 / 释义…" oninput="renderGrammarTable()" />
+      <select id="grammarStatusFilter" onchange="renderGrammarTable()">
+        <option value="all">全部状态</option>
+        <option value="known">已掌握</option>
+        <option value="learning">学习中</option>
+        <option value="unknown">未学</option>
+      </select>
+      <select id="grammarJlptFilter" onchange="renderGrammarTable()">
+        <option value="all">全部 JLPT</option>
+        <option value="N5">N5</option>
+        <option value="N4">N4</option>
+        <option value="N3">N3</option>
+        <option value="N2">N2</option>
+      </select>
+      <div class="spacer"></div>
+      <div class="small" id="grammarCount"></div>
+    </div>
+    <div id="grammarTableHost"></div>
+  </section>
+
+</main>
+
+<script src="jlpt_levels.js"></script>
+<script>
+/* ==========================================================
+ *  LyricJLPT — single-file frontend
+ *  数据源：同目录下的 03_vocab_frequency.tsv / 04_grammar_frequency.tsv
+ *  JLPT 等级数据：jlpt_levels.js
+ * ========================================================== */
+
+const VOCAB_TSV = '03_vocab_frequency.tsv';
+const GRAMMAR_TSV = '04_grammar_frequency.tsv';
+const VOCAB_EXAMPLES_JSON = '05_vocab_examples.json';
+const LS_PROGRESS = 'lyricjlpt:progress:v1';
+const LS_SYNC_CONFIG = 'lyricjlpt:sync-config:v1';
+const RUNTIME_CONFIG_JSON = 'lyricjlpt.config.json';
+const DEFAULT_PROGRESS_API = 'api/progress';
+let runtimeConfig = {};
+
+// JLPT 等级查询
+const JLPT = (typeof window !== 'undefined' && window.JLPT_DATA) || {
+  WORD_LEVELS: {}, GRAMMAR_LEVELS: {}, N2_HIGHFREQ_SET: new Set()
+};
+function vocabLevel(v) {
+  // 优先用 word 匹配；再尝试 surface_forms 中第一个
+  return JLPT.WORD_LEVELS[v.word] ||
+         JLPT.WORD_LEVELS[(v.surface_forms || '').split(',')[0].trim()] ||
+         null;
+}
+function isN2HighFreq(v) {
+  return JLPT.N2_HIGHFREQ_SET.has(v.word);
+}
+function grammarLevel(g) {
+  return JLPT.GRAMMAR_LEVELS[g.pattern] || null;
+}
+
+// ------- State
+const state = {
+  vocab: [],
+  grammar: [],
+  vocabExamples: {},
+  progress: { vocab: {}, grammar: {} },  // key -> "known" | "learning"
+  study: {
+    type: null,          // 'vocab' | 'grammar'
+    queue: [],           // array of items
+    index: 0,
+    revealed: false,
+  },
+  browse: {
+    vocabPage: 0,
+    pageSize: 80,
+  },
+  sync: {
+    checked: false,
+    available: false,
+    saving: false,
+    error: '',
+    pendingJson: null,
+    lastSavedJson: null,
+    endpoint: DEFAULT_PROGRESS_API,
+    configured: false,
+    tokenSet: false,
+  },
+};
+
+// ------- TSV loader
+async function loadTSV(path) {
+  const resp = await fetch(path);
+  if (!resp.ok) throw new Error(`Failed to fetch ${path}: ${resp.status}`);
+  const text = await resp.text();
+  const lines = text.replace(/\r\n?/g, '\n').split('\n').filter(l => l.length);
+  if (!lines.length) return [];
+  const header = lines[0].split('\t');
+  const out = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split('\t');
+    const row = {};
+    for (let j = 0; j < header.length; j++) row[header[j]] = cols[j] ?? '';
+    out.push(row);
+  }
+  return out;
+}
+
+async function loadOptionalJSON(path, fallback = {}) {
+  try {
+    const resp = await fetch(path, { cache: 'no-store' });
+    if (!resp.ok) return fallback;
+    return await resp.json();
+  } catch (e) {
+    console.warn(`Optional JSON not loaded: ${path}`, e);
+    return fallback;
+  }
+}
+
+// ------- Runtime / cloud sync config
+async function loadRuntimeConfig() {
+  runtimeConfig = await loadOptionalJSON(RUNTIME_CONFIG_JSON, {});
+  if (!runtimeConfig || typeof runtimeConfig !== 'object') runtimeConfig = {};
+
+  // 便于首次部署后用 ?progressApi=https://... 写入本机浏览器配置；token 不建议放 URL。
+  const params = new URLSearchParams(window.location.search || '');
+  const queryApi = params.get('progressApi') || params.get('progress_api');
+  if (queryApi) {
+    const stored = readStoredSyncConfig();
+    saveStoredSyncConfig({ ...stored, progressApiUrl: queryApi.trim() });
+    params.delete('progressApi');
+    params.delete('progress_api');
+    const cleanQuery = params.toString();
+    const cleanUrl = `${window.location.pathname}${cleanQuery ? '?' + cleanQuery : ''}${window.location.hash || ''}`;
+    window.history.replaceState({}, '', cleanUrl);
+  }
+}
+
+function normalizeApiUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  try {
+    return new URL(raw, window.location.href).href;
+  } catch (e) {
+    return raw;
+  }
+}
+
+function readStoredSyncConfig() {
+  try {
+    const raw = localStorage.getItem(LS_SYNC_CONFIG);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveStoredSyncConfig(config) {
+  const clean = {
+    progressApiUrl: String(config.progressApiUrl || config.apiUrl || '').trim(),
+    syncToken: String(config.syncToken || config.token || '').trim(),
+  };
+  try {
+    localStorage.setItem(LS_SYNC_CONFIG, JSON.stringify(clean));
+  } catch (e) {}
+  return clean;
+}
+
+function syncSettings() {
+  const stored = readStoredSyncConfig();
+  const apiRaw =
+    stored.progressApiUrl ||
+    stored.apiUrl ||
+    runtimeConfig.progressApiUrl ||
+    runtimeConfig.apiUrl ||
+    '';
+  const tokenRaw =
+    stored.syncToken ||
+    stored.token ||
+    runtimeConfig.syncToken ||
+    runtimeConfig.token ||
+    '';
+  const apiUrl = normalizeApiUrl(apiRaw);
+  return {
+    endpoint: apiUrl || DEFAULT_PROGRESS_API,
+    apiUrl,
+    configured: Boolean(apiUrl),
+    token: String(tokenRaw || '').trim(),
+  };
+}
+
+function progressHeaders(extra = {}) {
+  const headers = { ...extra };
+  const token = syncSettings().token;
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+function syncEndpointLabel(settings = syncSettings()) {
+  return settings.configured ? settings.endpoint : '本地 api/progress';
+}
+
+async function configureCloudSync() {
+  const current = syncSettings();
+  const apiUrl = prompt(
+    '请输入 Lambda Function URL（可带 /api/progress；留空表示取消云端同步）：',
+    current.configured ? current.endpoint : ''
+  );
+  if (apiUrl === null) return;
+  const normalizedApiUrl = normalizeApiUrl(apiUrl);
+  if (!normalizedApiUrl) {
+    localStorage.removeItem(LS_SYNC_CONFIG);
+    await loadProgress();
+    return;
+  }
+
+  const token = prompt(
+    '请输入 sync token（只保存在当前浏览器 localStorage，不写入源码）：',
+    current.token || ''
+  );
+  if (token === null) return;
+  saveStoredSyncConfig({ progressApiUrl: normalizedApiUrl, syncToken: token });
+  await loadProgress();
+  updateDash();
+  renderVocabTable();
+  renderGrammarTable();
+}
+
+async function clearCloudSync() {
+  localStorage.removeItem(LS_SYNC_CONFIG);
+  await loadProgress();
+  updateDash();
+  renderVocabTable();
+  renderGrammarTable();
+}
+
+// ------- Progress
+function emptyProgress() {
+  return { vocab: {}, grammar: {} };
+}
+
+function normalizeProgress(obj) {
+  const out = emptyProgress();
+  if (!obj || typeof obj !== 'object') return out;
+  for (const type of ['vocab', 'grammar']) {
+    const bucket = obj[type];
+    if (!bucket || typeof bucket !== 'object') continue;
+    for (const [key, value] of Object.entries(bucket)) {
+      if (typeof key === 'string' && (value === 'known' || value === 'learning')) {
+        out[type][key] = value;
+      }
+    }
+  }
+  return out;
+}
+
+function mergeProgress(local, remote) {
+  // localStorage 用于迁移旧进度；JSON 文件作为同 key 冲突时的准源。
+  return {
+    vocab: { ...(local.vocab || {}), ...(remote.vocab || {}) },
+    grammar: { ...(local.grammar || {}), ...(remote.grammar || {}) },
+  };
+}
+
+function progressJson(progress = state.progress) {
+  return JSON.stringify(normalizeProgress(progress));
+}
+
+function readLocalProgress() {
+  try {
+    const raw = localStorage.getItem(LS_PROGRESS);
+    if (raw) return normalizeProgress(JSON.parse(raw));
+  } catch (e) {}
+  return emptyProgress();
+}
+
+function writeLocalProgress() {
+  try {
+    localStorage.setItem(LS_PROGRESS, progressJson());
+  } catch (e) {}
+}
+
+async function loadProgress() {
+  const local = readLocalProgress();
+  const settings = syncSettings();
+  state.progress = local;
+  state.sync.endpoint = settings.endpoint;
+  state.sync.configured = settings.configured;
+  state.sync.tokenSet = Boolean(settings.token);
+  updateSyncStatus(settings.configured ? '检测云端进度…' : '检测本地进度 API…');
+
+  if (settings.configured && !settings.token) {
+    state.sync.checked = true;
+    state.sync.available = false;
+    state.sync.error = '已配置云端 API，但未设置 sync token';
+    writeLocalProgress();
+    updateSyncStatus();
+    return;
+  }
+
+  try {
+    const resp = await fetch(settings.endpoint, {
+      cache: 'no-store',
+      headers: progressHeaders(),
+    });
+    if (!resp.ok) {
+      const detail = await resp.text().catch(() => '');
+      throw new Error(`HTTP ${resp.status}${detail ? ': ' + truncate(detail, 160) : ''}`);
+    }
+    const remote = normalizeProgress(await resp.json());
+    const merged = mergeProgress(local, remote);
+    state.progress = merged;
+    state.sync.checked = true;
+    state.sync.available = true;
+    state.sync.error = '';
+    state.sync.endpoint = settings.endpoint;
+    state.sync.configured = settings.configured;
+    state.sync.tokenSet = Boolean(settings.token);
+    state.sync.lastSavedJson = progressJson(remote);
+    writeLocalProgress();
+
+    // 如果浏览器里有旧进度而 JSON 文件没有，启动后自动迁移一次。
+    if (progressJson(merged) !== state.sync.lastSavedJson) {
+      saveProgress();
+    } else {
+      updateSyncStatus();
+    }
+  } catch (e) {
+    state.sync.checked = true;
+    state.sync.available = false;
+    state.sync.error = e.message || String(e);
+    state.sync.endpoint = settings.endpoint;
+    state.sync.configured = settings.configured;
+    state.sync.tokenSet = Boolean(settings.token);
+    writeLocalProgress();
+    updateSyncStatus();
+  }
+}
+
+function saveProgress() {
+  state.progress = normalizeProgress(state.progress);
+  writeLocalProgress();
+  if (state.sync.available) {
+    state.sync.pendingJson = progressJson();
+    flushRemoteProgressSave();
+  }
+  updateSyncStatus();
+}
+
+async function flushRemoteProgressSave() {
+  if (!state.sync.available || state.sync.saving || !state.sync.pendingJson) return;
+
+  const json = state.sync.pendingJson;
+  const settings = syncSettings();
+  if (settings.configured && !settings.token) {
+    state.sync.available = false;
+    state.sync.error = '已配置云端 API，但未设置 sync token';
+    updateSyncStatus();
+    return;
+  }
+  state.sync.pendingJson = null;
+  state.sync.saving = true;
+  state.sync.endpoint = settings.endpoint;
+  state.sync.configured = settings.configured;
+  state.sync.tokenSet = Boolean(settings.token);
+  updateSyncStatus();
+
+  try {
+    const resp = await fetch(settings.endpoint, {
+      method: 'POST',
+      headers: progressHeaders({ 'Content-Type': 'application/json' }),
+      body: json,
+      cache: 'no-store',
+    });
+    if (!resp.ok) {
+      const detail = await resp.text().catch(() => '');
+      throw new Error(`HTTP ${resp.status}${detail ? ': ' + truncate(detail, 160) : ''}`);
+    }
+    state.sync.lastSavedJson = json;
+    state.sync.error = '';
+  } catch (e) {
+    state.sync.available = false;
+    state.sync.error = e.message || String(e);
+    state.sync.pendingJson = json;
+  } finally {
+    state.sync.saving = false;
+    updateSyncStatus();
+    if (state.sync.available && state.sync.pendingJson) flushRemoteProgressSave();
+  }
+}
+
+async function manualSyncNow() {
+  const settings = syncSettings();
+  if (settings.configured && !settings.token) {
+    alert('请先在「云端设置」里填写 sync token。');
+    await configureCloudSync();
+    return;
+  }
+  state.sync.checked = true;
+  state.sync.available = true;
+  state.sync.error = '';
+  state.sync.endpoint = settings.endpoint;
+  state.sync.configured = settings.configured;
+  state.sync.tokenSet = Boolean(settings.token);
+  state.sync.pendingJson = progressJson();
+  updateSyncStatus();
+  await flushRemoteProgressSave();
+  if (state.sync.available && !state.sync.pendingJson) {
+    alert(settings.configured ? '已保存到 AWS 云端进度' : '已保存到 lyricjlpt-progress.json');
+  } else {
+    alert('保存失败：当前已回退到浏览器缓存；请检查本地服务或 AWS 云端设置。');
+  }
+}
+
+function updateSyncStatus(extraText = '') {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  el.className = 'sync-status';
+
+  if (!state.sync.checked) {
+    el.innerHTML = `<strong>检测中…</strong>${extraText ? '<br>' + escapeHtml(extraText) : ''}`;
+    return;
+  }
+  if (state.sync.available) {
+    if (state.sync.saving || state.sync.pendingJson) {
+      el.classList.add('saving');
+      el.innerHTML = `<strong>正在保存进度…</strong><br>${escapeHtml(syncEndpointLabel({
+        endpoint: state.sync.endpoint,
+        configured: state.sync.configured,
+      }))}`;
+    } else {
+      el.classList.add('ok');
+      el.innerHTML =
+        `<strong>${state.sync.configured ? '已连接 AWS 云端同步' : '已连接本地文件保存'}</strong><br>` +
+        `${escapeHtml(syncEndpointLabel({ endpoint: state.sync.endpoint, configured: state.sync.configured }))}`;
+    }
+  } else {
+    el.classList.add('err');
+    const configured = state.sync.configured;
+    const tokenHint = configured && !state.sync.tokenSet ? '<br>点击「云端设置」填写 sync token。' : '';
+    el.innerHTML =
+      `<strong>${configured ? '云端同步不可用' : '未连接进度 API'}，当前回退到浏览器缓存</strong><br>` +
+      `${configured ? escapeHtml(state.sync.endpoint || '') : '本地请运行 npm start；AWS 上线后请点击「云端设置」。'}` +
+      tokenHint +
+      (state.sync.error ? `<br><span style="opacity:.75">原因：${escapeHtml(state.sync.error)}</span>` : '');
+  }
+}
+function setStatus(type, key, status) {
+  if (!state.progress[type]) state.progress[type] = {};
+  if (status == null) delete state.progress[type][key];
+  else state.progress[type][key] = status;
+  saveProgress();
+  updateDash();
+}
+function getStatus(type, key) {
+  return state.progress[type]?.[key];
+}
+
+function vocabKey(v) { return v.word + '|' + (v.reading || ''); }
+function grammarKey(g) { return g.pattern; }
+
+function vocabExamplesFor(v) {
+  const key = vocabKey(v);
+  const fromJson = state.vocabExamples[key] || [];
+  if (fromJson.length) return fromJson;
+  if (v.example) {
+    return [{
+      ja: v.example,
+      zh: '',
+      ref: v.example_ref || '',
+      zh_source: '',
+    }];
+  }
+  return [];
+}
+
+// ------- Init
+async function init() {
+  await loadProgress();
+  try {
+    const [vocab, grammar, vocabExamplesDoc] = await Promise.all([
+      loadTSV(VOCAB_TSV),
+      loadTSV(GRAMMAR_TSV),
+      loadOptionalJSON(VOCAB_EXAMPLES_JSON, {items:{}}),
+    ]);
+    state.vocabExamples = vocabExamplesDoc.items || vocabExamplesDoc || {};
+    state.vocab = vocab.map(v => {
+      const item = {
+        ...v,
+        frequency: parseInt(v.frequency || '0', 10),
+        song_count: parseInt(v.song_count || '0', 10),
+      };
+      item.jlpt = vocabLevel(item);
+      item.n2hf = isN2HighFreq(item);
+      item.examples = vocabExamplesFor(item);
+      return item;
+    }).sort((a,b) => b.frequency - a.frequency);
+    state.grammar = grammar.map(g => {
+      const item = {
+        ...g,
+        frequency: parseInt(g.frequency || '0', 10),
+        song_count: parseInt(g.song_count || '0', 10),
+      };
+      item.jlpt = grammarLevel(item);
+      return item;
+    }).sort((a,b) => b.frequency - a.frequency);
+
+    document.getElementById('dashVocabTotal').textContent = state.vocab.length;
+    document.getElementById('dashGrammarTotal').textContent = state.grammar.length;
+    updateDash();
+    renderVocabTable();
+    renderGrammarTable();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('globalStats').textContent = '数据加载失败';
+    document.getElementById('view-dash').insertAdjacentHTML('beforeend',
+      `<div class="card" style="margin-top:18px;border-color:rgba(255,122,122,.4)">
+        <h3 style="color:var(--bad)">数据加载失败</h3>
+        <div class="sub">${escapeHtml(e.message)}<br/>
+        请在本目录运行 <code>python serve_with_progress.py</code>，然后访问 <code>http://localhost:8000/</code>。</div>
+      </div>`);
+  }
+}
+
+function updateDash() {
+  const vk = Object.values(state.progress.vocab || {}).filter(s => s === 'known').length;
+  const vl = Object.values(state.progress.vocab || {}).filter(s => s === 'learning').length;
+  const gk = Object.values(state.progress.grammar || {}).filter(s => s === 'known').length;
+  const gl = Object.values(state.progress.grammar || {}).filter(s => s === 'learning').length;
+  document.getElementById('dashVocabKnown').textContent = vk;
+  document.getElementById('dashGrammarKnown').textContent = gk;
+  document.getElementById('dashVocabSub').textContent = `学习中 ${vl} · 未学 ${state.vocab.length - vk - vl}`;
+  document.getElementById('dashGrammarSub').textContent = `学习中 ${gl} · 未学 ${state.grammar.length - gk - gl}`;
+  const vpct = state.vocab.length ? (vk * 100 / state.vocab.length) : 0;
+  const gpct = state.grammar.length ? (gk * 100 / state.grammar.length) : 0;
+  document.getElementById('dashVocabBar').style.width = vpct.toFixed(1) + '%';
+  document.getElementById('dashGrammarBar').style.width = gpct.toFixed(1) + '%';
+  document.getElementById('globalStats').textContent =
+    `词 ${vk}/${state.vocab.length} · 法 ${gk}/${state.grammar.length}`;
+
+  // ===== N2 高频专项进度 =====
+  const n2Items = state.vocab.filter(v => v.n2hf);
+  const n2Known = n2Items.filter(v => getStatus('vocab', vocabKey(v)) === 'known').length;
+  const n2Learning = n2Items.filter(v => getStatus('vocab', vocabKey(v)) === 'learning').length;
+  const n2Total = n2Items.length;
+  document.getElementById('dashN2Known').textContent = `${n2Known} / ${n2Total}`;
+  document.getElementById('dashN2Bar').style.width =
+    (n2Total ? (n2Known * 100 / n2Total) : 0).toFixed(1) + '%';
+  document.getElementById('dashN2Sub').textContent =
+    n2Total > 0
+      ? `歌词中命中 ${n2Total} 个 N2 高频词，学习中 ${n2Learning}`
+      : '歌词中暂未命中 N2 高频词，可在浏览页面里手动选词';
+
+  // ===== JLPT 等级分布 =====
+  const dist = { N5:0, N4:0, N3:0, N2:0, none:0 };
+  for (const v of state.vocab) {
+    if (v.jlpt && dist.hasOwnProperty(v.jlpt)) dist[v.jlpt]++;
+    else dist.none++;
+  }
+  const distHost = document.getElementById('dashJlptDist');
+  if (distHost) {
+    distHost.innerHTML = ['N5','N4','N3','N2','none'].map(lv => {
+      const label = lv === 'none' ? '未分级' : lv;
+      const cls = lv === 'none' ? 'jlpt-none' : 'jlpt-' + lv;
+      return `<span class="tag jlpt ${cls}">${label} ${dist[lv]}</span>`;
+    }).join('');
+  }
+}
+
+// ------- View switching
+function setView(name) {
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.view === name);
+  });
+  document.querySelectorAll('.view').forEach(v => {
+    v.classList.toggle('active', v.id === 'view-' + name);
+  });
+  if (name === 'vocab') startStudy('vocab');
+  if (name === 'grammar') startStudy('grammar');
+}
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => setView(t.dataset.view));
+});
+
+// ------- Study
+function buildVocabQueue() {
+  const filter = document.getElementById('vocabFilter').value;
+  const pos = document.getElementById('vocabPos').value;
+  const order = document.getElementById('vocabOrder').value;
+  const jlpt = document.getElementById('vocabJlpt').value;
+  let q = state.vocab.slice();
+  if (pos !== 'all') q = q.filter(v => (v.pos || '').includes(pos));
+  if (jlpt === 'N2HF') q = q.filter(v => v.n2hf);
+  else if (jlpt === 'none') q = q.filter(v => !v.jlpt);
+  else if (jlpt !== 'all') q = q.filter(v => v.jlpt === jlpt);
+  if (filter === 'top100') q = q.slice(0, 100);
+  else if (filter === 'top300') q = q.slice(0, 300);
+  else if (filter === 'learning') q = q.filter(v => getStatus('vocab', vocabKey(v)) === 'learning');
+  else if (filter === 'unknown') q = q.filter(v => !getStatus('vocab', vocabKey(v)));
+  if (order === 'random') q = shuffle(q);
+  return q;
+}
+function buildGrammarQueue() {
+  const filter = document.getElementById('grammarFilter').value;
+  const order = document.getElementById('grammarOrder').value;
+  const jlpt = document.getElementById('grammarJlpt').value;
+  let q = state.grammar.slice();
+  if (jlpt !== 'all') q = q.filter(g => g.jlpt === jlpt);
+  if (filter === 'learning') q = q.filter(g => getStatus('grammar', grammarKey(g)) === 'learning');
+  else if (filter === 'unknown') q = q.filter(g => !getStatus('grammar', grammarKey(g)));
+  if (order === 'random') q = shuffle(q);
+  return q;
+}
+
+// 一键开始 N2 高频备考：切到背单词页面并设置 N2 高频筛选
+function startN2Study() {
+  setView('vocab');
+  document.getElementById('vocabFilter').value = 'all';
+  document.getElementById('vocabPos').value = 'all';
+  document.getElementById('vocabJlpt').value = 'N2HF';
+  document.getElementById('vocabOrder').value = 'freq';
+  startStudy('vocab');
+}
+
+function startStudy(type, opts = {}) {
+  // 切到对应 tab
+  if (type === 'vocab' && !document.getElementById('view-vocab').classList.contains('active')) setView('vocab');
+  if (type === 'grammar' && !document.getElementById('view-grammar').classList.contains('active')) setView('grammar');
+
+  state.study.type = type;
+  let queue = type === 'vocab' ? buildVocabQueue() : buildGrammarQueue();
+  if (opts.dailyMode && type === 'vocab') {
+    // 优先 learning，然后未学的前 N
+    const learning = queue.filter(v => getStatus('vocab', vocabKey(v)) === 'learning');
+    const unknown = queue.filter(v => !getStatus('vocab', vocabKey(v)));
+    queue = [...learning, ...unknown].slice(0, 20);
+  }
+  state.study.queue = queue;
+  state.study.index = 0;
+  state.study.revealed = false;
+  renderCard();
+}
+function restartStudy(type) { startStudy(type); }
+
+function renderCard() {
+  const type = state.study.type;
+  const host = document.getElementById(type === 'vocab' ? 'vocabStudy' : 'grammarStudy');
+  const progressLabel = document.getElementById(type === 'vocab' ? 'vocabProgress' : 'grammarProgress');
+  const queue = state.study.queue;
+  if (!queue.length) {
+    host.innerHTML = `<div class="empty">没有可学习的卡片，换个筛选条件试试吧 ✨</div>`;
+    progressLabel.textContent = '0 / 0';
+    return;
+  }
+  if (state.study.index >= queue.length) {
+    host.innerHTML = `<div class="card" style="text-align:center;max-width:520px">
+      <h3 style="color:var(--good)">本组完成 🎉</h3>
+      <div class="sub" style="margin:8px 0 16px">共完成 ${queue.length} 张卡片</div>
+      <button class="btn primary" onclick="restartStudy('${type}')">再来一组</button>
+    </div>`;
+    progressLabel.textContent = `${queue.length} / ${queue.length}`;
+    return;
+  }
+  const item = queue[state.study.index];
+  progressLabel.textContent = `${state.study.index + 1} / ${queue.length}`;
+
+  if (type === 'vocab') {
+    const key = vocabKey(item);
+    const status = getStatus('vocab', key);
+    const jlptTag = item.jlpt
+      ? `<span class="tag jlpt jlpt-${item.jlpt} ${item.n2hf ? 'hot' : ''}">${item.jlpt}${item.n2hf ? ' ★' : ''}</span>`
+      : '';
+    host.innerHTML = `
+      <div class="flash ${state.study.revealed ? '' : 'hidden-content'}" onclick="toggleReveal()">
+        <span class="badge">${statusLabel(status)} · 频率 ${item.frequency} ${jlptTag}</span>
+        <span class="hint">点击翻面 · 空格</span>
+        <div class="word">${escapeHtml(item.word || '')}</div>
+        <div class="reading">${escapeHtml(item.reading || '')}</div>
+        <div class="pos">${escapeHtml(item.pos || '')} · 出现于 ${item.song_count} 首歌</div>
+        <div class="meaning">${escapeHtml(item.meaning_cn || '（暂无释义）')}</div>
+        ${renderVocabExamples(item, 4)}
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="prevCard()">←</button>
+        <button class="btn bad"   onclick="answer('learning')">1 · 不会</button>
+        <button class="btn again" onclick="answer('learning')">2 · 模糊</button>
+        <button class="btn good"  onclick="answer('known')">3 · 会</button>
+        <button class="btn" onclick="nextCard()">→</button>
+      </div>
+      <div class="meta-row">
+        <span>出现歌曲：${escapeHtml(truncate(item.source_songs || '', 80))}</span>
+      </div>
+    `;
+  } else {
+    const key = grammarKey(item);
+    const status = getStatus('grammar', key);
+    const jlptTag = item.jlpt
+      ? `<span class="tag jlpt jlpt-${item.jlpt}">${item.jlpt}</span>` : '';
+    host.innerHTML = `
+      <div class="flash ${state.study.revealed ? '' : 'hidden-content'}" onclick="toggleReveal()">
+        <span class="badge">${statusLabel(status)} · 频率 ${item.frequency} ${jlptTag}</span>
+        <span class="hint">点击翻面 · 空格</span>
+        <div class="word">${escapeHtml(item.pattern || '')}</div>
+        <div class="meaning">${escapeHtml(item.meaning_cn || '')}</div>
+        ${item.example ? `<div class="example">${escapeHtml(item.example)}
+          ${item.example_ref ? `<span class="ref">${escapeHtml(item.example_ref)}</span>` : ''}
+        </div>` : ''}
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="prevCard()">←</button>
+        <button class="btn bad"   onclick="answer('learning')">1 · 不会</button>
+        <button class="btn again" onclick="answer('learning')">2 · 模糊</button>
+        <button class="btn good"  onclick="answer('known')">3 · 会</button>
+        <button class="btn" onclick="nextCard()">→</button>
+      </div>
+      <div class="meta-row">
+        <span>出现 ${item.song_count} 首歌</span>
+      </div>
+    `;
+  }
+}
+function statusLabel(s) {
+  if (s === 'known') return '✓ 已掌握';
+  if (s === 'learning') return '◐ 学习中';
+  return '○ 未学';
+}
+function renderVocabExamples(item, limit = 4) {
+  const examples = (item.examples || []).slice(0, limit);
+  if (!examples.length) return '';
+  const more = (item.examples || []).length > examples.length
+    ? `<div class="small" style="text-align:right">还有 ${(item.examples || []).length - examples.length} 条例句</div>`
+    : '';
+  return `<div class="example-list">
+    ${examples.map(ex => `<div class="example-item">
+      <div class="ja">「${highlight(ex.ja || '', item.word || '')}」</div>
+      ${ex.zh ? `<div class="cn">${escapeHtml(ex.zh)}</div>` : ''}
+      ${ex.ref ? `<span class="ref">${escapeHtml(ex.ref)}</span>` : ''}
+    </div>`).join('')}
+    ${more}
+  </div>`;
+}
+function renderVocabExamplesCompact(item, limit = 2) {
+  const examples = (item.examples || []).slice(0, limit);
+  if (!examples.length) return '';
+  return `<div style="margin-top:6px;display:flex;flex-direction:column;gap:6px">
+    ${examples.map(ex => `<div class="small">
+      <div>「${highlight(ex.ja || '', item.word || '')}」</div>
+      ${ex.zh ? `<div style="opacity:.82">${escapeHtml(ex.zh)}</div>` : ''}
+      ${ex.ref ? `<div style="opacity:.55">${escapeHtml(ex.ref)}</div>` : ''}
+    </div>`).join('')}
+  </div>`;
+}
+function toggleReveal() {
+  state.study.revealed = !state.study.revealed;
+  document.querySelector('#view-' + state.study.type + ' .flash')
+    ?.classList.toggle('hidden-content', !state.study.revealed);
+}
+function answer(status) {
+  const item = state.study.queue[state.study.index];
+  if (!item) return;
+  const type = state.study.type;
+  const key = type === 'vocab' ? vocabKey(item) : grammarKey(item);
+  setStatus(type, key, status);
+  nextCard();
+}
+function nextCard() {
+  state.study.index++;
+  state.study.revealed = false;
+  renderCard();
+}
+function prevCard() {
+  if (state.study.index > 0) state.study.index--;
+  state.study.revealed = false;
+  renderCard();
+}
+
+// 键盘
+document.addEventListener('keydown', (e) => {
+  const inStudy = state.study.type &&
+    (document.getElementById('view-vocab').classList.contains('active') ||
+     document.getElementById('view-grammar').classList.contains('active'));
+  if (!inStudy) return;
+  if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
+  if (e.key === ' ') { e.preventDefault(); toggleReveal(); }
+  else if (e.key === 'ArrowRight') nextCard();
+  else if (e.key === 'ArrowLeft') prevCard();
+  else if (e.key === '1') answer('learning');
+  else if (e.key === '2') answer('learning');
+  else if (e.key === '3') answer('known');
+});
+
+// ------- Browse: vocab
+function filteredVocab() {
+  const q = document.getElementById('vocabSearch').value.trim().toLowerCase();
+  const status = document.getElementById('vocabStatusFilter').value;
+  const pos = document.getElementById('vocabPosFilter').value;
+  const jlpt = document.getElementById('vocabJlptFilter').value;
+  return state.vocab.filter(v => {
+    if (pos !== 'all' && !(v.pos || '').includes(pos)) return false;
+    if (jlpt === 'N2HF' && !v.n2hf) return false;
+    else if (jlpt === 'none' && v.jlpt) return false;
+    else if (jlpt !== 'all' && jlpt !== 'N2HF' && jlpt !== 'none' && v.jlpt !== jlpt) return false;
+    const s = getStatus('vocab', vocabKey(v));
+    if (status === 'known' && s !== 'known') return false;
+    if (status === 'learning' && s !== 'learning') return false;
+    if (status === 'unknown' && s) return false;
+    if (q) {
+      const exHay = (v.examples || []).map(ex => `${ex.ja || ''} ${ex.zh || ''}`).join(' ');
+      const hay = `${v.word} ${v.reading} ${v.meaning_cn} ${exHay}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+function renderVocabTable() {
+  const data = filteredVocab();
+  const host = document.getElementById('vocabTableHost');
+  document.getElementById('vocabCount').textContent = `${data.length} 项`;
+  const page = state.browse.vocabPage;
+  const size = state.browse.pageSize;
+  const slice = data.slice(page * size, (page + 1) * size);
+
+  if (!slice.length) {
+    host.innerHTML = `<div class="empty">没有匹配的单词</div>`;
+    document.getElementById('vocabPager').innerHTML = '';
+    return;
+  }
+
+  host.innerHTML = `
+    <table>
+      <thead><tr>
+        <th style="width:80px">频次</th>
+        <th>单词</th>
+        <th>读音</th>
+        <th>词性</th>
+        <th style="width:80px">JLPT</th>
+        <th>释义 / 例句</th>
+        <th style="width:160px">状态</th>
+      </tr></thead>
+      <tbody>
+        ${slice.map(v => {
+          const k = vocabKey(v);
+          const st = getStatus('vocab', k);
+          const lvCell = v.jlpt
+            ? `<span class="tag jlpt jlpt-${v.jlpt} ${v.n2hf?'hot':''}">${v.jlpt}${v.n2hf?' ★':''}</span>`
+            : `<span class="tag jlpt jlpt-none">—</span>`;
+          return `<tr>
+            <td class="freq">${v.frequency}</td>
+            <td class="kw">${escapeHtml(v.word)}</td>
+            <td class="reading">${escapeHtml(v.reading || '')}</td>
+            <td><span class="tag">${escapeHtml(v.pos || '')}</span></td>
+            <td>${lvCell}</td>
+            <td>
+              <div>${escapeHtml(v.meaning_cn || '')}</div>
+              ${renderVocabExamplesCompact(v, 2)}
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="${st==='learning'?'is-learning':''}" onclick="cycleStatus('vocab', '${escapeAttr(k)}', 'learning')">◐</button>
+                <button class="${st==='known'?'is-known':''}" onclick="cycleStatus('vocab', '${escapeAttr(k)}', 'known')">✓</button>
+                <button onclick="cycleStatus('vocab', '${escapeAttr(k)}', null)">○</button>
+              </div>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+  // pager
+  const totalPages = Math.ceil(data.length / size);
+  const pager = document.getElementById('vocabPager');
+  if (totalPages <= 1) { pager.innerHTML = ''; return; }
+  pager.innerHTML = `
+    <button class="btn" ${page===0?'disabled':''} onclick="changeVocabPage(-1)">←</button>
+    <span>第 ${page+1} / ${totalPages} 页</span>
+    <button class="btn" ${page>=totalPages-1?'disabled':''} onclick="changeVocabPage(1)">→</button>
+  `;
+}
+function changeVocabPage(delta) {
+  state.browse.vocabPage = Math.max(0, state.browse.vocabPage + delta);
+  renderVocabTable();
+}
+function cycleStatus(type, key, target) {
+  const current = getStatus(type, key);
+  if (current === target) setStatus(type, key, null);
+  else setStatus(type, key, target);
+  renderVocabTable();
+  renderGrammarTable();
+}
+
+// ------- Browse: grammar
+function filteredGrammar() {
+  const q = document.getElementById('grammarSearch').value.trim().toLowerCase();
+  const status = document.getElementById('grammarStatusFilter').value;
+  const jlpt = document.getElementById('grammarJlptFilter').value;
+  return state.grammar.filter(g => {
+    if (jlpt !== 'all' && g.jlpt !== jlpt) return false;
+    const s = getStatus('grammar', grammarKey(g));
+    if (status === 'known' && s !== 'known') return false;
+    if (status === 'learning' && s !== 'learning') return false;
+    if (status === 'unknown' && s) return false;
+    if (q) {
+      const hay = `${g.pattern} ${g.meaning_cn}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+function renderGrammarTable() {
+  const data = filteredGrammar();
+  document.getElementById('grammarCount').textContent = `${data.length} 项`;
+  const host = document.getElementById('grammarTableHost');
+  if (!data.length) { host.innerHTML = `<div class="empty">没有匹配的语法</div>`; return; }
+  host.innerHTML = `
+    <table>
+      <thead><tr>
+        <th style="width:80px">频次</th>
+        <th>语法</th>
+        <th style="width:80px">JLPT</th>
+        <th>释义</th>
+        <th>例句</th>
+        <th style="width:160px">状态</th>
+      </tr></thead>
+      <tbody>
+        ${data.map(g => {
+          const k = grammarKey(g);
+          const st = getStatus('grammar', k);
+          const lvCell = g.jlpt
+            ? `<span class="tag jlpt jlpt-${g.jlpt}">${g.jlpt}</span>`
+            : `<span class="tag jlpt jlpt-none">—</span>`;
+          return `<tr>
+            <td class="freq">${g.frequency}</td>
+            <td class="kw">${escapeHtml(g.pattern)}</td>
+            <td>${lvCell}</td>
+            <td>${escapeHtml(g.meaning_cn || '')}</td>
+            <td>
+              ${g.example ? `<div>${escapeHtml(g.example)}</div>` : ''}
+              ${g.example_ref ? `<div class="small" style="opacity:.7">${escapeHtml(g.example_ref)}</div>` : ''}
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="${st==='learning'?'is-learning':''}" onclick="cycleStatus('grammar', '${escapeAttr(k)}', 'learning')">◐</button>
+                <button class="${st==='known'?'is-known':''}" onclick="cycleStatus('grammar', '${escapeAttr(k)}', 'known')">✓</button>
+                <button onclick="cycleStatus('grammar', '${escapeAttr(k)}', null)">○</button>
+              </div>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// ------- Import / export
+function exportProgress() {
+  const blob = new Blob([JSON.stringify(state.progress, null, 2)],
+    { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `lyricjlpt-progress-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+document.getElementById('importFile').addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const obj = JSON.parse(reader.result);
+      if (obj && typeof obj === 'object') {
+        state.progress = Object.assign({vocab:{},grammar:{}}, obj);
+        saveProgress();
+        updateDash();
+        renderVocabTable();
+        renderGrammarTable();
+        alert('导入成功');
+      }
+    } catch (err) { alert('导入失败：' + err.message); }
+  };
+  reader.readAsText(file);
+});
+
+window.addEventListener('beforeunload', () => {
+  writeLocalProgress();
+  const json = progressJson();
+  if (state.sync.available && state.sync.lastSavedJson !== json) {
+    try {
+      const settings = syncSettings();
+      if (settings.configured && settings.token) {
+        fetch(settings.endpoint, {
+          method: 'POST',
+          headers: progressHeaders({ 'Content-Type': 'application/json' }),
+          body: json,
+          cache: 'no-store',
+          keepalive: true,
+        });
+      } else {
+        const blob = new Blob([json], { type: 'application/json' });
+        if (navigator.sendBeacon) navigator.sendBeacon(settings.endpoint, blob);
+      }
+    } catch (e) {}
+  }
+});
+
+// ------- Helpers
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function escapeAttr(s) {
+  return escapeHtml(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+function truncate(s, n) {
+  s = String(s ?? '');
+  return s.length > n ? s.slice(0, n) + '…' : s;
+}
+function shuffle(a) {
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function highlight(text, term) {
+  if (!term) return escapeHtml(text);
+  const escaped = escapeHtml(text);
+  const t = escapeHtml(term);
+  return escaped.split(t).join(`<span style="color:var(--accent);font-weight:700">${t}</span>`);
+}
+
+loadRuntimeConfig().finally(init);
+</script>
+
+</body>
+</html>
